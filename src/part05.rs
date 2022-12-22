@@ -3,6 +3,7 @@
 
 // ## Big Numbers
 
+#[derive(Clone)]
 pub struct BigInt {
     pub data: Vec<u64>, // least significant digit first, no trailing zeros
 }
@@ -38,6 +39,24 @@ impl BigInt {
 
         BigInt { data: v }
     }
+
+    pub fn digits_count(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn non_zero_digits_count(&self) -> usize {
+        self.data
+            .iter()
+            .fold(0, |count, digit| if *digit > 0 { count + 1 } else { count })
+    }
+
+    pub fn smallest_digit(&self) -> Option<u64> {
+        self.data.iter().min().copied()
+    }
+
+    pub fn largest_digit(&self) -> Option<u64> {
+        self.data.iter().max().copied()
+    }
 }
 
 // ## Cloning
@@ -47,17 +66,23 @@ fn clone_demo() {
     let b2 = BigInt::from_vec(v);
 }
 
-impl Clone for BigInt {
-    fn clone(&self) -> Self {
-        unimplemented!()
-    }
-}
+// impl Clone for BigInt {
+//     fn clone(&self) -> Self {
+//         BigInt {
+//             data: self.data.clone(),
+//         }
+//     }
+// }
 
 // We can also make the type `SomethingOrNothing<T>` implement `Clone`.
 use part02::{Nothing, Something, SomethingOrNothing};
+
 impl<T: Clone> Clone for SomethingOrNothing<T> {
     fn clone(&self) -> Self {
-        unimplemented!()
+        match self {
+            Something(value) => Something(value.clone()),
+            Nothing => Nothing,
+        }
     }
 }
 
