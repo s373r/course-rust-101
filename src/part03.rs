@@ -7,8 +7,9 @@ use std::fmt::Debug;
 // directly available.
 use std::io;
 use std::io::prelude::*;
+use std::str::FromStr;
 
-fn read_vec() -> Vec<i32> {
+fn read_vec<T: FromStr>() -> Vec<T> {
     let mut vec = Vec::new();
     // The central handle to the standard input is made available by the function `io::stdin`.
     let stdin = io::stdin();
@@ -40,7 +41,7 @@ use part02::{vec_min, Nothing, Something, SomethingOrNothing};
 // If you update your `main.rs` to use part 03, `cargo run` should now ask you for some numbers,
 // and tell you the minimum. Neat, isn't it?
 pub fn main() {
-    let vec = read_vec();
+    let vec: Vec<f32> = read_vec();
     let min = vec_min(vec);
 
     min.print2();
