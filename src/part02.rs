@@ -9,6 +9,7 @@ pub enum SomethingOrNothing<T> {
 }
 // Instead of writing out all the variants, we can also just import them all at once.
 pub use self::SomethingOrNothing::*;
+
 type NumberOrNothing = SomethingOrNothing<i32>;
 
 // ## Generic `impl`, Static functions
@@ -16,13 +17,20 @@ type NumberOrNothing = SomethingOrNothing<i32>;
 // an alias for `SomethingOrNothing<T>`.
 impl<T> SomethingOrNothing<T> {
     fn new(o: Option<T>) -> Self {
-        unimplemented!()
+        match o {
+            None => Nothing,
+            Some(value) => Something(value),
+        }
     }
 
     fn to_option(self) -> Option<T> {
-        unimplemented!()
+        match self {
+            Something(value) => Some(value),
+            Nothing => None,
+        }
     }
 }
+
 // You can call static functions, and in particular constructors, as demonstrated in `call_constructor`.
 fn call_constructor(x: i32) -> SomethingOrNothing<i32> {
     SomethingOrNothing::new(Some(x))
@@ -35,14 +43,12 @@ pub trait Minimum: Copy {
 }
 
 pub fn vec_min<T: Minimum>(v: Vec<T>) -> SomethingOrNothing<T> {
-    let mut min = Nothing;
+    let mut min: SomethingOrNothing<T> = Nothing;
     for e in v {
         min = Something(match min {
             Nothing => e,
             // Here, we can now call the `min` function of the trait.
-            Something(n) => {
-                unimplemented!()
-            }
+            Something(n) => n.min(e),
         });
     }
     min
@@ -52,7 +58,11 @@ pub fn vec_min<T: Minimum>(v: Vec<T>) -> SomethingOrNothing<T> {
 // To make `vec_min` usable with a `Vec<i32>`, we implement the `Minimum` trait for `i32`.
 impl Minimum for i32 {
     fn min(self, b: Self) -> Self {
-        unimplemented!()
+        if self < b {
+            self
+        } else {
+            b
+        }
     }
 }
 
