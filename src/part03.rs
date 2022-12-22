@@ -1,6 +1,7 @@
 // Rust-101, Part 03: Input
 // ========================
 
+use std::fmt::Debug;
 // I/O is provided by the module `std::io`, so we first have to import that with `use`.
 // We also import the I/O *prelude*, which makes a bunch of commonly used I/O stuff
 // directly available.
@@ -8,10 +9,12 @@ use std::io;
 use std::io::prelude::*;
 
 fn read_vec() -> Vec<i32> {
-    let mut vec: Vec<i32> = Vec::<i32>::new();
+    let mut vec = Vec::new();
     // The central handle to the standard input is made available by the function `io::stdin`.
     let stdin = io::stdin();
+
     println!("Enter a list of numbers, one per line. End with Ctrl-D (Linux) or Ctrl-Z (Windows).");
+
     for line in stdin.lock().lines() {
         // Rust's type for (dynamic, growable) strings is `String`. However, our variable `line`
         // here is not yet of that type: It has type `io::Result<String>`.
@@ -21,14 +24,10 @@ fn read_vec() -> Vec<i32> {
         let line = line.unwrap();
         // Now that we have our `String`, we want to make it an `i32`.
 
-        match line.trim().parse::<i32>() {
-            Ok(num) => {
-                unimplemented!()
-            }
+        match line.trim().parse() {
+            Ok(num) => vec.push(num),
             // We don't care about the particular error, so we ignore it with a `_`.
-            Err(_) => {
-                unimplemented!()
-            }
+            Err(_) => println!("A line [{line}] is not a number!"),
         }
     }
 
@@ -42,7 +41,9 @@ use part02::{vec_min, Nothing, Something, SomethingOrNothing};
 // and tell you the minimum. Neat, isn't it?
 pub fn main() {
     let vec = read_vec();
-    unimplemented!()
+    let min = vec_min(vec);
+
+    min.print2();
 }
 
 // **Exercise 03.1**: Define a trait `Print` to write a generic version of
@@ -58,11 +59,15 @@ pub fn main() {
 //
 // *Hint*: There is a macro `print!` for printing without appending a newline.
 pub trait Print {
-    /* Add things here */
+    fn print2(self);
 }
-impl<T: Print> SomethingOrNothing<T> {
+
+impl<T: Debug> Print for SomethingOrNothing<T> {
     fn print2(self) {
-        unimplemented!()
+        match self {
+            Something(value) => print!("Something({value:?})"),
+            Nothing => print!("Nothing"),
+        }
     }
 }
 
