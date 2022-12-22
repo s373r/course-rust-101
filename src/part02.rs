@@ -11,6 +11,7 @@ pub enum SomethingOrNothing<T> {
 pub use self::SomethingOrNothing::*;
 
 type NumberOrNothing = SomethingOrNothing<i32>;
+type FloatOrNothing = SomethingOrNothing<f32>;
 
 // ## Generic `impl`, Static functions
 // Inside an `impl`, `Self` refers to the type we are implementing things for. Here, it is
@@ -66,6 +67,16 @@ impl Minimum for i32 {
     }
 }
 
+impl Minimum for f32 {
+    fn min(self, b: Self) -> Self {
+        if self < b {
+            self
+        } else {
+            b
+        }
+    }
+}
+
 // We again provide a `print` function.
 impl NumberOrNothing {
     pub fn print(self) {
@@ -76,10 +87,20 @@ impl NumberOrNothing {
     }
 }
 
-// Now we are ready to run our new code. Remember to change `main.rs` appropriately.
-fn read_vec() -> Vec<i32> {
-    vec![18, 5, 7, 3, 9, 27]
+impl FloatOrNothing {
+    fn print(self) {
+        match self {
+            Nothing => println!("The float number is: <nothing>"),
+            Something(n) => println!("The float number is: {}", n),
+        };
+    }
 }
+
+// Now we are ready to run our new code. Remember to change `main.rs` appropriately.
+fn read_vec() -> Vec<f32> {
+    vec![18., 5., 7., 3., 9., 27.]
+}
+
 pub fn main() {
     let vec = read_vec();
     let min = vec_min(vec);
