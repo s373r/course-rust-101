@@ -11,17 +11,16 @@ pub struct BigInt {
 impl BigInt {
     pub fn new(x: u64) -> Self {
         if x == 0 {
-            unimplemented!()
+            BigInt { data: vec![] }
         } else {
-            unimplemented!()
+            BigInt { data: vec![x] }
         }
     }
 
     pub fn test_invariant(&self) -> bool {
-        if self.data.len() == 0 {
-            true
-        } else {
-            unimplemented!()
+        match self.data.last() {
+            None => true,
+            Some(last_digit) => *last_digit != 0,
         }
     }
 
@@ -35,7 +34,9 @@ impl BigInt {
     //
     // *Hint*: You can use `pop` to remove the last element of a vector.
     pub fn from_vec(mut v: Vec<u64>) -> Self {
-        unimplemented!()
+        v.reverse();
+
+        BigInt { data: v }
     }
 }
 
