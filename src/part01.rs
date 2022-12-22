@@ -41,15 +41,24 @@ fn compute_stuff(x: i32) -> i32 {
 }
 
 // Let us now refactor `vec_min`.
-fn vec_min(v: Vec<i32>) -> NumberOrNothing {
+fn vec_min(v: &Vec<i32>) -> NumberOrNothing {
     fn min_i32(a: i32, b: i32) -> i32 {
-        unimplemented!()
+        if a < b {
+            a
+        } else {
+            b
+        }
     }
 
     let mut min = Nothing;
+
     for e in v {
-        unimplemented!()
+        min = Number(match min {
+            Nothing => *e,
+            Number(n) => min_i32(n, *e),
+        });
     }
+
     min
 }
 
@@ -70,10 +79,26 @@ impl NumberOrNothing {
 fn read_vec() -> Vec<i32> {
     vec![18, 5, 7, 2, 9, 27]
 }
+
+fn vec_sum(numbers: &[i32]) -> i32 {
+    numbers.iter().sum()
+}
+
+fn vec_print<T: std::fmt::Debug>(vec: &Vec<T>) {
+    println!("{vec:#?}");
+}
+
 pub fn main() {
     let vec = read_vec();
-    let min = vec_min(vec);
-    unimplemented!()
+    let min = vec_min(&vec);
+
+    min.print();
+
+    let sum = vec_sum(&vec);
+
+    println!("Sum is {sum}");
+
+    vec_print(&vec);
 }
 // You will have to replace `part00` by `part01` in the `main` function in
 // `main.rs` to run this code.
