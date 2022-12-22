@@ -1,6 +1,7 @@
 // Rust-101, Part 06: Copy, Lifetimes
 // ==================================
 
+use std::cmp::Ordering;
 // We continue to work on our `BigInt`, so we start by importing what we already established.
 use part05::BigInt;
 
@@ -11,13 +12,21 @@ impl BigInt {
         debug_assert!(self.test_invariant() && other.test_invariant());
         // Now our assumption of having no trailing zeros comes in handy:
         // If the lengths of the two numbers differ, we already know which is larger.
+
         if self.data.len() < other.data.len() {
             self
         } else if self.data.len() > other.data.len() {
             other
         } else {
-            // **Exercise 06.1**: Fill in this code.
-            unimplemented!()
+            for (left, right) in self.data.iter().zip(&other.data).rev() {
+                match left.cmp(right) {
+                    Ordering::Less => return self,
+                    Ordering::Equal => continue,
+                    Ordering::Greater => return other,
+                }
+            }
+
+            self
         }
     }
 }
