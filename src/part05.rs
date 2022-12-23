@@ -35,7 +35,20 @@ impl BigInt {
     //
     // *Hint*: You can use `pop` to remove the last element of a vector.
     pub fn from_vec(mut v: Vec<u64>) -> Self {
-        v.reverse();
+        loop {
+            let last = match v.last() {
+                None => break,
+                Some(last) => *last,
+            };
+
+            if last != 0 {
+                break;
+            }
+
+            v.pop();
+        }
+
+        debug_assert!(v.len() > 0);
 
         BigInt { data: v }
     }
