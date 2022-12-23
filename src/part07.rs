@@ -113,6 +113,20 @@ fn test_vec_min() {
 // `vec_min` on an empty vector. Also add tests for `BigInt::from_vec` (in particular, removing
 // trailing zeros). Finally, break one of your functions in a subtle way and watch the test fail.
 
+#[test]
+fn test_vec_min_on_empty_vector() {
+    let v: Vec<BigInt> = vec![];
+
+    assert_eq!(vec_min(&v), None);
+}
+
+#[test]
+fn test_big_int_from_vec_remove_trailing_zeroes() {
+    let b = BigInt::from_vec(vec![3, 2, 1, 0, 0, 0]);
+
+    assert_eq!(b.data, [3, 2, 1]);
+}
+
 // **Exercise 07.2**: Go back to your good ol' `SomethingOrNothing`, and implement `Display` for it.
 // (This will, of course, need a `Display` bound on `T`.) Then you should be able to use them with
 // `println!` just like you do with numbers, and get rid of the inherent functions to print
