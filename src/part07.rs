@@ -96,7 +96,7 @@ impl fmt::Debug for BigInt {
 }
 
 // Now we are ready to use `assert_eq!` to test `vec_min`.
-/*#[test]*/
+#[test]
 fn test_vec_min() {
     let b1 = BigInt::new(1);
     let b2 = BigInt::new(42);
@@ -104,7 +104,9 @@ fn test_vec_min() {
 
     let v1 = vec![b2.clone(), b1.clone(), b3.clone()];
     let v2 = vec![b2.clone(), b3.clone()];
-    unimplemented!()
+
+    assert_eq!(vec_min(&v1), Some(&b1));
+    assert_eq!(vec_min(&v2), Some(&b2));
 }
 
 // **Exercise 07.1**: Add some more testcases. In particular, make sure you test the behavior of
