@@ -3,6 +3,8 @@
 
 pub use part05::BigInt;
 
+use std::cmp::Ordering;
+
 // With our new knowledge of lifetimes, we are now able to write down the desired type of `min`:
 pub trait Minimum {
     fn min<'a>(&'a self, other: &'a Self) -> &'a Self;
@@ -24,7 +26,23 @@ pub fn vec_min<T: Minimum>(v: &Vec<T>) -> Option<&T> {
 // exercise 06.1. You should *not* make any copies of `BigInt`!
 impl Minimum for BigInt {
     fn min<'a>(&'a self, other: &'a Self) -> &'a Self {
-        unimplemented!()
+        debug_assert!(self.test_invariant() && other.test_invariant());
+
+        if self.data.len() < other.data.len() {
+            self
+        } else if self.data.len() > other.data.len() {
+            other
+        } else {
+            for (left, right) in self.data.iter().zip(&other.data).rev() {
+                match left.cmp(right) {
+                    Ordering::Less => return self,
+                    Ordering::Equal => continue,
+                    Ordering::Greater => return other,
+                }
+            }
+
+            self
+        }
     }
 }
 
