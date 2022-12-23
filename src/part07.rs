@@ -88,6 +88,7 @@ fn test_min() {
 // All formating is handled by [`std::fmt`](https://doc.rust-lang.org/std/fmt/index.html). I won't
 // explain all the details, and refer you to the documentation instead.
 use std::fmt;
+use std::fmt::{Display, Formatter, Write};
 
 impl fmt::Debug for BigInt {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -131,3 +132,23 @@ fn test_big_int_from_vec_remove_trailing_zeroes() {
 // (This will, of course, need a `Display` bound on `T`.) Then you should be able to use them with
 // `println!` just like you do with numbers, and get rid of the inherent functions to print
 // `SomethingOrNothing<i32>` and `SomethingOrNothing<f32>`.
+
+pub use part02::{Nothing, Something, SomethingOrNothing};
+
+impl<T: Display> Display for SomethingOrNothing<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Something(x) => write!(f, "Something({x})"),
+            Nothing => write!(f, "Nothing"),
+        }
+    }
+}
+
+#[test]
+fn test_something_or_nothing_impl_display() {
+    let s = Something(42);
+    let n: SomethingOrNothing<i32> = Nothing;
+
+    assert_eq!(format!("{s}"), "Something(42)");
+    assert_eq!(format!("{n}"), "Nothing");
+}
