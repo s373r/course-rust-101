@@ -38,7 +38,11 @@ fn vec_min(v: &Vec<BigInt>) -> Option<BigInt> {
     // `iter`, the iterator that borrows the elements.
     for e in v {
         let e = e.clone();
-        unimplemented!()
+
+        min = Some(match min {
+            None => e,
+            Some(n) => e.min_try1(n),
+        })
     }
     min
 }
@@ -58,6 +62,7 @@ fn head<T>(v: &Vec<T>) -> Option<&T> {
         None
     }
 }
+
 // Technically, we are returning a pointer to the first element. But doesn't that mean that callers
 // have to be careful? Imagine `head` would be a C++ function, and we would write the following
 // code.
