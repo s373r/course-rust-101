@@ -74,9 +74,27 @@ impl ops::Add<BigInt> for BigInt {
 // definition says. Notice that we can implement a trait for a reference type!
 impl<'a, 'b> ops::Add<&'a BigInt> for &'b BigInt {
     type Output = BigInt;
+
     fn add(self, rhs: &'a BigInt) -> Self::Output {
         // **Exercise 08.3**: Implement this function.
-        unimplemented!()
+        let max_len = cmp::max(self.data.len(), rhs.data.len());
+        let mut result_vec: Vec<u64> = Vec::with_capacity(max_len);
+        let mut carry = false; /* the current carry bit */
+
+        for i in 0..max_len {
+            let lhs_val = if i < self.data.len() { self.data[i] } else { 0 };
+            let rhs_val = if i < rhs.data.len() { rhs.data[i] } else { 0 };
+            let (sum, new_carry) = overflowing_add(lhs_val, rhs_val, carry);
+
+            result_vec.push(sum);
+            carry = new_carry;
+        }
+
+        if carry {
+            result_vec.push(1);
+        }
+
+        BigInt::from_vec(result_vec)
     }
 }
 
