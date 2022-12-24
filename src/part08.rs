@@ -111,13 +111,18 @@ impl<'a, 'b> ops::Add<&'a BigInt> for &'b BigInt {
 mod tests {
     use part05::BigInt;
 
-    /*#[test]*/
+    #[test]
     fn test_add() {
         let b1 = BigInt::new(1 << 32);
         let b2 = BigInt::from_vec(vec![0, 1]);
+        let b3 = BigInt::from_vec(vec![1, 1]);
+        let b4 = BigInt::new(1);
+        let b5 = BigInt::from_vec(vec![u64::MAX]);
 
         assert_eq!(&b1 + &b2, BigInt::from_vec(vec![1 << 32, 1]));
         // **Exercise 08.5**: Add some more cases to this test.
+        assert_eq!(&b2 + &b3, BigInt::from_vec(vec![1, 2]));
+        assert_eq!(&b4 + &b5, BigInt::from_vec(vec![0, 1]));
     }
 }
 
