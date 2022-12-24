@@ -14,17 +14,20 @@ fn overflowing_add(a: u64, b: u64, carry: bool) -> (u64, bool) {
     if sum >= a {
         // The addition did not overflow. <br/>
         // **Exercise 08.1**: Write the code to handle adding the carry in this case.
-        unimplemented!()
+        let sum_with_carry = sum.wrapping_add(if carry { 1 } else { 0 });
+        let has_overflow = if sum_with_carry >= sum { false } else { true };
+
+        (sum_with_carry, has_overflow)
     } else {
         // Otherwise, the addition *did* overflow. It is impossible for the addition of the carry
         // to overflow again, as we are just adding 0 or 1.
-        unimplemented!()
+        (sum + if carry { 1 } else { 0 }, true)
     }
 }
 
 // `overflow_add` is a sufficiently intricate function that a test case is justified.
 // This should also help you to check your solution of the exercise.
-/*#[test]*/
+#[test]
 fn test_overflowing_add() {
     assert_eq!(overflowing_add(10, 100, false), (110, false));
     assert_eq!(overflowing_add(10, 100, true), (111, false));
