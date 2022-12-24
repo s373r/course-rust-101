@@ -101,6 +101,8 @@ impl<'a, 'b> ops::Add<&'a BigInt> for &'b BigInt {
 // **Exercise 08.4**: Implement the two missing combinations of arguments for `Add`. You should not
 // have to duplicate the implementation.
 
+// NOTE(DP): I do not understand what is required :(
+
 // ## Modules
 
 // Rust calls a bunch of definitions that are grouped together a *module*. You can put the tests in
