@@ -48,15 +48,22 @@ impl ops::Add<BigInt> for BigInt {
         let max_len = cmp::max(self.data.len(), rhs.data.len());
         let mut result_vec: Vec<u64> = Vec::with_capacity(max_len);
         let mut carry = false; /* the current carry bit */
+
         for i in 0..max_len {
             let lhs_val = if i < self.data.len() { self.data[i] } else { 0 };
             let rhs_val = if i < rhs.data.len() { rhs.data[i] } else { 0 };
-            // Compute next digit and carry. Then, store the digit for the result, and the carry
-            // for later.
-            unimplemented!()
+            let (sum, new_carry) = overflowing_add(lhs_val, rhs_val, carry);
+
+            result_vec.push(sum);
+            carry = new_carry;
         }
+
         // **Exercise 08.2**: Handle the final `carry`, and return the sum.
-        unimplemented!()
+        if carry {
+            result_vec.push(1);
+        }
+
+        BigInt::from_vec(result_vec)
     }
 }
 
