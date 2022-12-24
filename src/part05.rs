@@ -8,6 +8,21 @@ pub struct BigInt {
     pub data: Vec<u64>, // least significant digit first, no trailing zeros
 }
 
+pub fn remove_last_zeroes(vec: &mut Vec<u64>) {
+    loop {
+        let last = match vec.last() {
+            None => break,
+            Some(last) => *last,
+        };
+
+        if last != 0 {
+            break;
+        }
+
+        vec.pop();
+    }
+}
+
 // Now that we fixed the data representation, we can start implementing methods on it.
 impl BigInt {
     pub fn new(x: u64) -> Self {
@@ -35,18 +50,7 @@ impl BigInt {
     //
     // *Hint*: You can use `pop` to remove the last element of a vector.
     pub fn from_vec(mut v: Vec<u64>) -> Self {
-        loop {
-            let last = match v.last() {
-                None => break,
-                Some(last) => *last,
-            };
-
-            if last != 0 {
-                break;
-            }
-
-            v.pop();
-        }
+        remove_last_zeroes(&mut v);
 
         debug_assert!(v.len() > 0);
 
