@@ -1,7 +1,7 @@
 // Rust-101, Part 08: Associated Types, Modules
 // ============================================
 
-use part05::BigInt;
+use part05::{remove_last_zeroes, BigInt};
 use std::{cmp, ops};
 
 // So, let us write a function to "add with carry", and give it the appropriate type. Notice Rust's
@@ -124,8 +124,60 @@ mod tests {
         assert_eq!(&b2 + &b3, BigInt::from_vec(vec![1, 2]));
         assert_eq!(&b4 + &b5, BigInt::from_vec(vec![0, 1]));
     }
+
+    #[test]
+    fn test_sub() {
+        assert_eq!(
+            &BigInt::from_vec(vec![2, 3]) - &BigInt::from_vec(vec![1, 1]),
+            Some(BigInt::from_vec(vec![1, 2]))
+        );
+        assert_eq!(
+            &BigInt::from_vec(vec![5, 5]) - &BigInt::from_vec(vec![5, 5]),
+            Some(BigInt::new(0))
+        );
+        assert_eq!(
+            &BigInt::from_vec(vec![4, 6]) - &BigInt::from_vec(vec![0, 6]),
+            Some(BigInt::new(4))
+        );
+        assert_eq!(
+            &BigInt::from_vec(vec![1, 0, 1]) - &BigInt::new(1),
+            Some(BigInt::from_vec(vec![0, 0, 1]))
+        );
+        assert_eq!(
+            &BigInt::from_vec(vec![1, 0, 1]) - &BigInt::new(1),
+            Some(BigInt::from_vec(vec![0, 0, 1]))
+        );
+    }
 }
 
 // **Exercise 08.6**: Write a subtraction function, and testcases for it. Decide for yourself how
 // you want to handle negative results. For example, you may want to return an `Option`, to panic,
 // or to return `0`.
+impl<'a, 'b> ops::Sub<&'a BigInt> for &'b BigInt {
+    type Output = Option<BigInt>;
+
+    fn sub(self, rhs: &'a BigInt) -> Self::Output {
+        let max_len = cmp::max(self.data.len(), rhs.data.len());
+        let mut result_vec: Vec<u64> = Vec::with_capacity(max_len);
+
+        for i in 0..max_len {
+            let left = if i < self.data.len() { self.data[i] } else { 0 };
+            let right = if i < rhs.data.len() { rhs.data[i] } else { 0 };
+            let delta = left.wrapping_sub(right);
+
+            if left < delta {
+                panic!("carry bit support is not implemented!");
+            }
+
+            result_vec.push(delta);
+        }
+
+        remove_last_zeroes(&mut result_vec);
+
+        Some(if result_vec.is_empty() {
+            BigInt::new(0)
+        } else {
+            BigInt::from_vec(result_vec)
+        })
+    }
+}
