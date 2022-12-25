@@ -67,7 +67,21 @@ fn print_digits_v2(b: &BigInt) {
 }
 
 // **Exercise 09.1**: Write a testcase for the iterator, making sure it yields the corrects numbers.
-//
+#[cfg(test)]
+mod tests {
+    use part05::BigInt;
+
+    fn test_big_int_iter() {
+        let b = BigInt::from_vec(vec![3, 2, 1]);
+        let mut iter = b.iter();
+
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), Some(2));
+        assert_eq!(iter.next(), Some(1));
+        assert_eq!(iter.next(), None);
+    }
+}
+
 // **Exercise 09.2**: Write a function `iter_ldf` that iterates over the digits with the
 // least-significant digits coming first. Write a testcase for it.
 
