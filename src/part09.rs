@@ -6,6 +6,7 @@ use part05::BigInt;
 pub struct Iter<'a> {
     num: &'a BigInt,
     idx: usize, // the index of the last number that was returned
+    end_idx: usize,
 }
 
 // Now we are equipped to implement `Iterator` for `Iter`.
@@ -14,16 +15,19 @@ impl<'a> Iterator for Iter<'a> {
     type Item = u64;
 
     fn next(&mut self) -> Option<u64> {
-        // First, check whether there's any more digits to return.
-        if self.idx == 0 {
-            // We already returned all the digits, nothing to do.
-            None
-        } else {
-            // Otherwise: Decrement, and return next digit.
-            self.idx -= 1;
-
-            Some(self.num.data[self.idx])
+        if self.idx == self.end_idx {
+            return None;
         }
+
+        let is_reverse_iter = self.end_idx != 0;
+
+        if is_reverse_iter {
+            self.idx -= 1;
+        } else {
+            self.idx += 1;
+        }
+
+        Some(self.num.data[self.idx])
     }
 }
 
@@ -33,6 +37,7 @@ impl BigInt {
         Iter {
             num: self,
             idx: self.data.len(),
+            end_idx: 0,
         }
     }
 }
@@ -80,10 +85,30 @@ mod tests {
         assert_eq!(iter.next(), Some(1));
         assert_eq!(iter.next(), None);
     }
+
+    fn test_big_int_iter_ldf() {
+        let b = BigInt::from_vec(vec![3, 2, 1]);
+        let mut iter = b.iter();
+
+        assert_eq!(iter.next(), Some(1));
+        assert_eq!(iter.next(), Some(2));
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), None);
+    }
 }
 
 // **Exercise 09.2**: Write a function `iter_ldf` that iterates over the digits with the
 // least-significant digits coming first. Write a testcase for it.
+
+impl BigInt {
+    fn iter_ldf(&self) -> Iter {
+        Iter {
+            num: self,
+            idx: 0,
+            end_idx: self.data.len(),
+        }
+    }
+}
 
 // ## Iterator invalidation and lifetimes
 
