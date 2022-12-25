@@ -17,10 +17,12 @@ impl<'a> Iterator for Iter<'a> {
         // First, check whether there's any more digits to return.
         if self.idx == 0 {
             // We already returned all the digits, nothing to do.
-            unimplemented!()
+            None
         } else {
             // Otherwise: Decrement, and return next digit.
-            unimplemented!()
+            self.idx -= 1;
+
+            Some(self.num.data[self.idx])
         }
     }
 }
@@ -28,7 +30,10 @@ impl<'a> Iterator for Iter<'a> {
 // All we need now is a function that creates such an iterator for a given `BigInt`.
 impl BigInt {
     fn iter(&self) -> Iter {
-        unimplemented!()
+        Iter {
+            num: self,
+            idx: self.data.len(),
+        }
     }
 }
 
@@ -43,17 +48,21 @@ pub fn main() {
 // Of course, we don't have to use `for` to apply the iterator. We can also explicitly call `next`.
 fn print_digits_v1(b: &BigInt) {
     let mut iter = b.iter();
+
     loop {
         // Each time we go through the loop, we analyze the next element presented by the iterator
         // - until it stops.
-        unimplemented!()
+        match iter.next() {
+            None => break,
+            Some(digit) => println!("{digit}"),
+        }
     }
 }
 
 fn print_digits_v2(b: &BigInt) {
     let mut iter = b.iter();
     while let Some(digit) = iter.next() {
-        println!("{}", digit)
+        println!("{}", digit);
     }
 }
 
