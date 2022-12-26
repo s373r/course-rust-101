@@ -18,13 +18,13 @@ impl Callbacks {
 
     // Registration works just like last time, except that we are creating an `Rc` now.
     pub fn register<F: Fn(i32) + 'static>(&mut self, callback: F) {
-        unimplemented!()
+        self.callbacks.push(Rc::new(callback));
     }
 
     pub fn call(&self, val: i32) {
         // We only need a shared iterator here. Since `Rc` is a smart pointer, we can directly call the callback.
         for callback in self.callbacks.iter() {
-            unimplemented!()
+            callback(val);
         }
     }
 }
@@ -37,8 +37,8 @@ fn demo(c: &mut Callbacks) {
 }
 
 pub fn main() {
-    let mut c = Callbacks::new();
-    demo(&mut c);
+    let mut c = CallbacksMut::new();
+    demo_mut(&mut c);
 }
 
 // ## Interior Mutability
@@ -77,7 +77,8 @@ impl CallbacksMut {
     }
 
     pub fn register<F: FnMut(i32) + 'static>(&mut self, callback: F) {
-        unimplemented!()
+        let cell = Rc::new(RefCell::new(callback));
+        self.callbacks.push(cell);
     }
 
     pub fn call(&mut self, val: i32) {
