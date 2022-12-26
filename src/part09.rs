@@ -7,6 +7,27 @@ pub struct Iter<'a> {
     num: &'a BigInt,
     idx: usize, // the index of the last number that was returned
     end_idx: usize,
+    stop: bool,
+}
+
+impl<'a> Iter<'a> {
+    fn new(num: &'a BigInt) -> Self {
+        Iter {
+            num,
+            idx: num.data.len() - 1,
+            end_idx: 0,
+            stop: false,
+        }
+    }
+
+    fn new_rev(num: &'a BigInt) -> Self {
+        Iter {
+            num,
+            idx: 0,
+            end_idx: num.data.len() - 1,
+            stop: false,
+        }
+    }
 }
 
 // Now we are equipped to implement `Iterator` for `Iter`.
@@ -15,30 +36,32 @@ impl<'a> Iterator for Iter<'a> {
     type Item = u64;
 
     fn next(&mut self) -> Option<u64> {
-        if self.idx == self.end_idx {
+        if self.stop {
             return None;
         }
 
-        let is_reverse_iter = self.end_idx != 0;
+        let result = Some(self.num.data[self.idx]);
 
-        if is_reverse_iter {
-            self.idx -= 1;
-        } else {
-            self.idx += 1;
+        self.stop = self.idx == self.end_idx;
+
+        if !self.stop {
+            let is_reverse_iter = self.end_idx != 0;
+
+            if is_reverse_iter {
+                self.idx += 1;
+            } else {
+                self.idx -= 1;
+            }
         }
 
-        Some(self.num.data[self.idx])
+        result
     }
 }
 
 // All we need now is a function that creates such an iterator for a given `BigInt`.
 impl BigInt {
     fn iter(&self) -> Iter {
-        Iter {
-            num: self,
-            idx: self.data.len(),
-            end_idx: 0,
-        }
+        Iter::new(self)
     }
 }
 
@@ -90,7 +113,7 @@ mod tests {
     #[test]
     fn test_big_int_iter_ldf() {
         let b = BigInt::from_vec(vec![3, 2, 1]);
-        let mut iter = b.iter();
+        let mut iter = b.iter_ldf();
 
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next(), Some(2));
@@ -104,11 +127,7 @@ mod tests {
 
 impl BigInt {
     fn iter_ldf(&self) -> Iter {
-        Iter {
-            num: self,
-            idx: 0,
-            end_idx: self.data.len(),
-        }
+        Iter::new_rev(self)
     }
 }
 
