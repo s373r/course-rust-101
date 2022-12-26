@@ -92,9 +92,9 @@ mod tests {
         let b = BigInt::from_vec(vec![3, 2, 1]);
         let mut iter = b.iter();
 
-        assert_eq!(iter.next(), Some(1));
-        assert_eq!(iter.next(), Some(2));
         assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), Some(2));
+        assert_eq!(iter.next(), Some(1));
         assert_eq!(iter.next(), None);
     }
 }
