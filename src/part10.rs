@@ -14,7 +14,7 @@ trait Action {
 impl BigInt {
     fn act_v1<A: Action>(&self, mut a: A) {
         for digit in self {
-            unimplemented!()
+            a.do_action(digit);
         }
     }
 }
@@ -27,13 +27,13 @@ impl Action for PrintWithString {
     // Here we perform the actual printing of the prefix and the digit. We're not making use of our
     // ability to change `self` here, but we could replace the prefix if we wanted.
     fn do_action(&mut self, digit: u64) {
-        unimplemented!()
+        println!("{}{}", self.prefix, digit);
     }
 }
 
 // Finally, this function takes a `BigInt` and a prefix, and prints the digits with the given prefix.
 fn print_with_prefix_v1(b: &BigInt, prefix: String) {
-    let my_action = PrintWithString { prefix: prefix };
+    let my_action = PrintWithString { prefix };
     b.act_v1(my_action);
 }
 
@@ -53,7 +53,7 @@ impl BigInt {
         for digit in self {
             // We can call closures as if they were functions - but really, what's happening here
             // is translated to essentially what we wrote above, in `act_v1`.
-            unimplemented!()
+            a(digit);
         }
     }
 }
@@ -97,7 +97,7 @@ fn print_enumerated<T: fmt::Display>(v: &Vec<T>) {
 
 // And as a final example, one can also collect all elements of an iterator, and put them, e.g., in a vector.
 fn filter_vec_by_divisor(v: &Vec<i32>, divisor: i32) -> Vec<i32> {
-    unimplemented!()
+    v.iter().map(|n| *n).filter(|n| *n % divisor == 0).collect()
 }
 
 // **Exercise 10.1**: Look up the
