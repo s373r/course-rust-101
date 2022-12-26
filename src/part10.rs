@@ -127,7 +127,8 @@ fn product_odd_numbers<'a, T: Product<&'a T> + PartialEq>(v: &'a Vec<T>) -> T {
 
 #[cfg(test)]
 mod tests {
-    use part10::{product_odd_numbers, sum_even_numbers};
+    use part05::BigInt;
+    use part10::{product_odd_numbers, sum_even_numbers, vec_min_with_map};
 
     #[test]
     fn test_sum_even_numbers() {
@@ -140,6 +141,25 @@ mod tests {
         assert_eq!(product_odd_numbers(&vec![1, 2, 3, 4, 5]), 15);
         assert_eq!(product_odd_numbers(&vec![1.0, 2.0, 3.0, 4.0, 5.0]), 15.0);
     }
+
+    #[test]
+    fn test_vec_min_with_map_or() {
+        assert_eq!(vec_min_with_map(&vec![]), None);
+        assert_eq!(vec_min_with_map(&vec![1, 2, 3, 4, 5]), Some(1));
+        assert_eq!(vec_min_with_map(&vec![2, 2, 2]), Some(2));
+        assert_eq!(vec_min_with_map(&vec![1, 2, 3, 4, 5, 0]), Some(0));
+    }
+
+    #[test]
+    fn test_big_int_test_invariant_with_map_or() {
+        let big_int = BigInt::from_vec_without_remove_last_zeroes(vec![1, 2]);
+
+        assert_eq!(big_int.test_invariant_with_map_or(), true);
+
+        let invalid_big_int = BigInt::from_vec_without_remove_last_zeroes(vec![1, 0]);
+
+        assert_eq!(invalid_big_int.test_invariant_with_map_or(), false);
+    }
 }
 // **Exercise 10.2**: We started the journey in Part 02 with `SomethingOrNothing<T>`, and later
 // learned about `Option<T>` in Part 04. `Option<T>` also has a `map` function.
@@ -148,3 +168,39 @@ mod tests {
 // (Hint: read the source code of `map`, and see if the pattern appears in your own code.)
 // Bonus: [`test_invariant` in Part 05](part05.html#section-6) doesn't use `match`,
 // but can you still find a way to rewrite it with `map`?
+
+fn vec_min_with_map(v: &Vec<i32>) -> Option<i32> {
+    use std::cmp;
+
+    let mut min = None;
+    for e in v.iter() {
+        // NOTE(DP): before
+        // min = Some(match min {
+        //     None => *e,
+        //     Some(n) => cmp::min(n, *e),
+        // });
+
+        // NOTE(DP): after
+        // min = min.map_or(*e, |n| cmp::min(n, *e));
+        min = min.map(|n| cmp::min(n, *e)).or(Some(*e));
+    }
+    min
+}
+
+impl BigInt {
+    fn test_invariant_with_map_or(&self) -> bool {
+        // NOTE(DP): before
+        // match self.data.last() {
+        //     None => true,
+        //     Some(last_digit) => *last_digit != 0,
+        // }
+
+        // NOTE(DP): after
+        self.data.last().map_or(true, |last_digit| *last_digit != 0)
+    }
+
+    // NOTE(DP): just for unit-tests
+    fn from_vec_without_remove_last_zeroes(v: Vec<u64>) -> Self {
+        BigInt { data: v }
+    }
+}
