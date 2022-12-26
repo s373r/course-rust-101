@@ -17,7 +17,9 @@ pub struct Callbacks {
 impl Callbacks {
     // Now we can provide some functions. The constructor should be straight-forward.
     pub fn new() -> Self {
-        unimplemented!()
+        Callbacks {
+            callbacks: Vec::new(),
+        }
     }
 
     // Registration simply stores the callback.
@@ -30,14 +32,14 @@ impl Callbacks {
     // to `FnMut(i32)` itself.
 
     pub fn register_generic<F: FnMut(i32) + 'static>(&mut self, callback: F) {
-        unimplemented!()
+        self.callbacks.push(Box::new(callback));
     }
 
     // And here we call all the stored callbacks.
     pub fn call(&mut self, val: i32) {
         // Since they are of type `FnMut`, we need to mutably iterate.
         for callback in self.callbacks.iter_mut() {
-            unimplemented!()
+            (*callback)(val);
         }
     }
 }
