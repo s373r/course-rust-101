@@ -10,11 +10,11 @@ struct CallbacksV1<F: FnMut(i32)> {
     callbacks: Vec<FnMut(i32)>,
 } */
 
-pub struct Callbacks {
-    callbacks: Vec<Box<dyn FnMut(i32)>>,
+pub struct Callbacks<T: Copy> {
+    callbacks: Vec<Box<dyn FnMut(T)>>,
 }
 
-impl Callbacks {
+impl<T: Copy> Callbacks<T> {
     // Now we can provide some functions. The constructor should be straight-forward.
     pub fn new() -> Self {
         Callbacks {
@@ -23,7 +23,7 @@ impl Callbacks {
     }
 
     // Registration simply stores the callback.
-    pub fn register(&mut self, callback: Box<dyn FnMut(i32)>) {
+    pub fn register(&mut self, callback: Box<dyn FnMut(T)>) {
         self.callbacks.push(callback);
     }
 
@@ -31,12 +31,12 @@ impl Callbacks {
     // some concrete closure type `F` and do the creation of the `Box` and the conversion from `F`
     // to `FnMut(i32)` itself.
 
-    pub fn register_generic<F: FnMut(i32) + 'static>(&mut self, callback: F) {
+    pub fn register_generic<F: FnMut(T) + 'static>(&mut self, callback: F) {
         self.callbacks.push(Box::new(callback));
     }
 
     // And here we call all the stored callbacks.
-    pub fn call(&mut self, val: i32) {
+    pub fn call(&mut self, val: T) {
         // Since they are of type `FnMut`, we need to mutably iterate.
         for callback in self.callbacks.iter_mut() {
             (*callback)(val);
@@ -65,3 +65,4 @@ pub fn main() {
 // data structures above to work with an arbitrary type `T` that's passed to the callbacks. Since
 // you need to call multiple callbacks with the same `val: T` (in our `call` function), you will
 // either have to restrict `T` to `Copy` types, or pass a reference.
+// NOTE(DP): Done
