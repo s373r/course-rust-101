@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 struct Callbacks {
-    callbacks: Vec<Rc<Fn(i32)>>,
+    callbacks: Vec<Rc<dyn Fn(i32)>>,
 }
 
 impl Callbacks {
@@ -66,7 +66,7 @@ fn demo_cell(c: &mut Callbacks) {
 // Our final version of `Callbacks` puts the closure environment into a `RefCell`.
 #[derive(Clone)]
 struct CallbacksMut {
-    callbacks: Vec<Rc<RefCell<FnMut(i32)>>>,
+    callbacks: Vec<Rc<RefCell<dyn FnMut(i32)>>>,
 }
 
 impl CallbacksMut {

@@ -11,7 +11,7 @@ struct CallbacksV1<F: FnMut(i32)> {
 } */
 
 pub struct Callbacks {
-    callbacks: Vec<Box<FnMut(i32)>>,
+    callbacks: Vec<Box<dyn FnMut(i32)>>,
 }
 
 impl Callbacks {
@@ -21,7 +21,7 @@ impl Callbacks {
     }
 
     // Registration simply stores the callback.
-    pub fn register(&mut self, callback: Box<FnMut(i32)>) {
+    pub fn register(&mut self, callback: Box<dyn FnMut(i32)>) {
         self.callbacks.push(callback);
     }
 
