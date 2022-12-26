@@ -76,6 +76,7 @@ fn print_digits_v2(b: &BigInt) {
 mod tests {
     use part05::BigInt;
 
+    #[test]
     fn test_big_int_iter() {
         let b = BigInt::from_vec(vec![3, 2, 1]);
         let mut iter = b.iter();
@@ -86,6 +87,7 @@ mod tests {
         assert_eq!(iter.next(), None);
     }
 
+    #[test]
     fn test_big_int_iter_ldf() {
         let b = BigInt::from_vec(vec![3, 2, 1]);
         let mut iter = b.iter();
