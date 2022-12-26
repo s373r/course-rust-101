@@ -3,6 +3,8 @@
 
 use part05::BigInt;
 use std::fmt;
+use std::iter::{Product, Sum};
+use std::ops::Add;
 
 // So, let us define a trait that demands that the type provides some method `do_action` on digits.
 trait Action {
@@ -107,6 +109,38 @@ fn filter_vec_by_divisor(v: &Vec<i32>, divisor: i32) -> Vec<i32> {
 // those numbers that sit at odd positions? A function that checks whether a vector contains a
 // certain number? Whether all numbers are smaller than some threshold? Be creative!
 
+fn sum_even_numbers<'a, T: Sum<&'a T> + PartialEq>(v: &'a Vec<T>) -> T {
+    v.iter()
+        .enumerate()
+        .filter(|(i, x)| (i + 1) & 1 == 0)
+        .map(|(_, x)| x)
+        .sum()
+}
+
+fn product_odd_numbers<'a, T: Product<&'a T> + PartialEq>(v: &'a Vec<T>) -> T {
+    v.iter()
+        .enumerate()
+        .filter(|(i, x)| (i + 1) & 1 == 1)
+        .map(|(_, x)| x)
+        .product()
+}
+
+#[cfg(test)]
+mod tests {
+    use part10::{product_odd_numbers, sum_even_numbers};
+
+    #[test]
+    fn test_sum_even_numbers() {
+        assert_eq!(sum_even_numbers(&vec![1, 2, 3, 4, 5]), 6);
+        assert_eq!(sum_even_numbers(&vec![1.1, 2.2, 3.1, 4.2, 5.1]), 6.4);
+    }
+
+    #[test]
+    fn test_product_odd_numbers() {
+        assert_eq!(product_odd_numbers(&vec![1, 2, 3, 4, 5]), 15);
+        assert_eq!(product_odd_numbers(&vec![1.0, 2.0, 3.0, 4.0, 5.0]), 15.0);
+    }
+}
 // **Exercise 10.2**: We started the journey in Part 02 with `SomethingOrNothing<T>`, and later
 // learned about `Option<T>` in Part 04. `Option<T>` also has a `map` function.
 // [Read its documentation here.](https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.map)
