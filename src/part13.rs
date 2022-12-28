@@ -2,6 +2,7 @@
 // =========================================
 
 use std::io::prelude::*;
+use std::ops::Deref;
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::sync::Arc;
 use std::{fs, io, thread};
@@ -18,22 +19,35 @@ pub enum OutputMode {
 use self::OutputMode::*;
 
 pub struct Options {
-    pub files: Vec<String>,
+    pub files: Vec<Arc<String>>,
     pub pattern: String,
     pub output_mode: OutputMode,
 }
 
+struct MatchedLine {
+    file_name: Arc<String>,
+    number: usize,
+    line: String,
+}
+
 // The first function reads the files, and sends every line over the `out_channel`.
-fn read_files(options: Arc<Options>, out_channel: SyncSender<String>) {
-    for file in options.files.iter() {
+fn read_files(options: Arc<Options>, out_channel: SyncSender<MatchedLine>) {
+    for file_name in options.files.iter() {
         // First, we open the file, ignoring any errors.
-        let file = fs::File::open(file).unwrap();
+        let file = fs::File::open(file_name.deref()).unwrap();
         // Then we obtain a `BufReader` for it, which provides the `lines` function.
         let file = io::BufReader::new(file);
-        for line in file.lines() {
+
+        for (line_number, line) in file.lines().enumerate() {
             let line = line.unwrap();
+            let matched_line = MatchedLine {
+                file_name: file_name.clone(),
+                number: line_number,
+                line,
+            };
+
             // Now we send the line over the channel, ignoring the possibility of `send` failing.
-            out_channel.send(line).unwrap();
+            out_channel.send(matched_line).unwrap();
         }
     }
     // When we drop the `out_channel`, it will be closed, which the other end can notice.
@@ -41,30 +55,36 @@ fn read_files(options: Arc<Options>, out_channel: SyncSender<String>) {
 
 // The second function filters the lines it receives through `in_channel` with the pattern, and sends
 // matches via `out_channel`.
-fn filter_lines(
+fn filter_lines<'a>(
     options: Arc<Options>,
-    in_channel: Receiver<String>,
-    out_channel: SyncSender<String>,
+    in_channel: Receiver<MatchedLine>,
+    out_channel: SyncSender<MatchedLine>,
 ) {
     // We can simply iterate over the channel, which will stop when the channel is closed.
-    for line in in_channel.iter() {
+    for matched_line in in_channel.iter() {
         // `contains` works on lots of types of patterns, but in particular, we can use it to test
         // whether one string is contained in another. This is another example of Rust using traits
         // as substitute for overloading.
-        if line.contains(&options.pattern) {
-            out_channel.send(line).unwrap();
+        if matched_line.line.contains(&options.pattern) {
+            out_channel.send(matched_line).unwrap();
         }
     }
 }
 
 // The third function performs the output operations, receiving the relevant lines on its
 // `in_channel`.
-fn output_lines(options: Arc<Options>, in_channel: Receiver<String>) {
+fn output_lines(options: Arc<Options>, in_channel: Receiver<MatchedLine>) {
     match options.output_mode {
         Print => {
             // Here, we just print every line we see.
-            for line in in_channel.iter() {
-                println!("{}", line);
+            for matched_line in in_channel.iter() {
+                let MatchedLine {
+                    file_name,
+                    number,
+                    line,
+                } = matched_line;
+
+                println!("{file_name}:{number}: {line}");
             }
         }
         Count => {
@@ -77,7 +97,7 @@ fn output_lines(options: Arc<Options>, in_channel: Receiver<String>) {
         SortAndPrint => {
             // We are asked to sort the matching lines before printing. So let's collect them all
             // in a local vector...
-            let mut data: Vec<String> = in_channel.iter().collect();
+            let mut data: Vec<_> = in_channel.iter().collect();
             // ...and implement the actual sorting later.
             unimplemented!()
         }
@@ -117,9 +137,9 @@ pub fn run(options: Options) {
 pub fn main() {
     let options = Options {
         files: vec![
-            "src/part10.rs".to_string(),
-            "src/part11.rs".to_string(),
-            "src/part12.rs".to_string(),
+            "src/part10.rs".to_string().into(),
+            "src/part11.rs".to_string().into(),
+            "src/part12.rs".to_string().into(),
         ],
         pattern: "let".to_string(),
         output_mode: Print,
@@ -130,3 +150,4 @@ pub fn main() {
 // **Exercise 13.1**: Change rgrep such that it prints not only the matching lines, but also the
 // name of the file and the number of the line in the file. You will have to change the type of the
 // channels from `String` to something that records this extra information.
+// NOTE(DP): Done
