@@ -52,7 +52,7 @@ fn filter_lines(
         // whether one string is contained in another. This is another example of Rust using traits
         // as substitute for overloading.
         if line.contains(&options.pattern) {
-            unimplemented!()
+            out_channel.send(line).unwrap();
         }
     }
 }
@@ -64,13 +64,15 @@ fn output_lines(options: Arc<Options>, in_channel: Receiver<String>) {
         Print => {
             // Here, we just print every line we see.
             for line in in_channel.iter() {
-                unimplemented!()
+                println!("{}", line);
             }
         }
         Count => {
             // We are supposed to count the number of matching lines. There's a convenient iterator
             // adapter that we can use for this job.
-            unimplemented!()
+            let count = in_channel.iter().count();
+
+            println!("{} hits for {}.", count, options.pattern);
         }
         SortAndPrint => {
             // We are asked to sort the matching lines before printing. So let's collect them all
