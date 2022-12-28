@@ -38,7 +38,7 @@ fn demo(c: &mut Callbacks) {
 
 pub fn main() {
     let mut c = CallbacksMut::new();
-    demo_mut(&mut c);
+    demo_panic(&mut c);
 }
 
 // ## Interior Mutability
@@ -114,3 +114,11 @@ fn demo_mut(c: &mut CallbacksMut) {
 // **Exercise 12.1**: Write some piece of code using only the available, public interface of
 // `CallbacksMut` such that a reentrant call to a closure is happening, and the program panics
 // because the `RefCell` refuses to hand out a second mutable borrow of the closure's environment.
+fn demo_panic(c: &mut CallbacksMut) {
+    c.register(|val| println!("Callback 1: {val}"));
+
+    let rc_closure_clone = c.callbacks.first().unwrap().clone();
+    let borrowed_closure = rc_closure_clone.borrow_mut();
+
+    c.call(0);
+}
