@@ -74,7 +74,7 @@ fn sort_array() {
 
 // I disabled the following module (using a rather bad hack), because it only compiles if `docopt`
 // is linked. Remove the attribute of the `rgrep` module to enable compilation.
-#[cfg(feature = "disabled")]
+// #[cfg(feature = "disabled")]
 pub mod rgrep {
     // Now that `docopt` is linked, we can first add it to the namespace with `extern crate` and
     // then import shorter names with `use`. We also import some other pieces that we will need.
@@ -119,7 +119,7 @@ Options:
             OutputMode::Print
         };
         Options {
-            files: files.iter().map(|file| file.to_string()).collect(),
+            files: files.iter().map(|file| file.to_string().into()).collect(),
             pattern: pattern.to_string(),
             output_mode: mode,
         }
@@ -130,7 +130,7 @@ Options:
     // You can now use `cargo run -- <pattern> <files>` to call your program, and see the argument
     // parser and the threads we wrote previously in action!
     pub fn main() {
-        unimplemented!()
+        run(get_options());
     }
 }
 
