@@ -1,11 +1,14 @@
 // Rust-101, Part 13: Concurrency, Arc, Send
 // =========================================
 
+use std::cmp::Ordering;
 use std::io::prelude::*;
 use std::ops::Deref;
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::sync::Arc;
 use std::{fs, io, thread};
+
+use part14::sort;
 
 // Before we come to the actual code, we define a data-structure `Options` to store all the
 // information we need to complete the job: Which files to work on, which pattern to look for, and
@@ -24,10 +27,62 @@ pub struct Options {
     pub output_mode: OutputMode,
 }
 
+#[derive(Debug)]
 struct MatchedLine {
     file_name: Arc<String>,
     number: usize,
     line: String,
+}
+
+impl PartialEq<Self> for MatchedLine {
+    fn eq(&self, other: &Self) -> bool {
+        self.line == other.line
+    }
+}
+
+impl PartialOrd for MatchedLine {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.line.partial_cmp(&other.line)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use part13::MatchedLine;
+    use part14::sort;
+
+    #[test]
+    fn test_matched_line_partial_ord() {
+        let mut lines = vec![
+            MatchedLine {
+                file_name: "file1".to_string().into(),
+                line: "b".to_string(),
+                number: 1,
+            },
+            MatchedLine {
+                file_name: "file2".to_string().into(),
+                line: "a".to_string(),
+                number: 2,
+            },
+        ];
+
+        sort(&mut lines);
+
+        let expected = vec![
+            MatchedLine {
+                file_name: "file2".to_string().into(),
+                line: "a".to_string(),
+                number: 2,
+            },
+            MatchedLine {
+                file_name: "file1".to_string().into(),
+                line: "b".to_string(),
+                number: 1,
+            },
+        ];
+
+        assert_eq!(lines, expected);
+    }
 }
 
 // The first function reads the files, and sends every line over the `out_channel`.
@@ -97,9 +152,19 @@ fn output_lines(options: Arc<Options>, in_channel: Receiver<MatchedLine>) {
         SortAndPrint => {
             // We are asked to sort the matching lines before printing. So let's collect them all
             // in a local vector...
-            let mut data: Vec<_> = in_channel.iter().collect();
-            // ...and implement the actual sorting later.
-            unimplemented!()
+            let mut matched_lines: Vec<_> = in_channel.iter().collect();
+
+            sort(&mut matched_lines);
+
+            for matched_line in matched_lines {
+                let MatchedLine {
+                    file_name,
+                    number,
+                    line,
+                } = matched_line;
+
+                println!("{file_name}:{number}: {line}");
+            }
         }
     }
 }
