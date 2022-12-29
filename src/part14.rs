@@ -15,10 +15,14 @@ pub fn sort<T: PartialOrd>(data: &mut [T]) {
     let mut rpos = data.len();
     /* Invariant: pivot is data[0]; everything with index (0,lpos) is <= pivot;
     [rpos,len) is >= pivot; lpos < rpos */
-    loop {
-        // **Exercise 14.1**: Complete this Quicksort loop. You can use `swap` on slices to swap
-        // two elements. Write a test function for `sort`.
-        unimplemented!()
+
+    // **Exercise 14.1**: Complete this Quicksort loop. You can use `swap` on slices to swap
+    // two elements. Write a test function for `sort`.
+    for i in lpos..rpos {
+        if data[i] <= data[0] {
+            data.swap(lpos, i);
+            lpos += 1;
+        }
     }
 
     // Once our cursors met, we need to put the pivot in the right place.
@@ -27,7 +31,27 @@ pub fn sort<T: PartialOrd>(data: &mut [T]) {
     // Finally, we split our slice to sort the two halves. The nice part about slices is that
     // splitting them is cheap:
     let (part1, part2) = data.split_at_mut(lpos);
-    unimplemented!()
+
+    sort(&mut part1[..lpos - 1]);
+    sort(part2);
+}
+
+#[cfg(test)]
+mod tests {
+    use part14::sort;
+    use std::fmt::Debug;
+
+    #[test]
+    fn test_sort() {
+        fn assert_eq_vec<T: PartialOrd + Debug>(mut a: Vec<T>, b: Vec<T>) {
+            sort(&mut a);
+            assert_eq!(a, b);
+        }
+
+        assert_eq_vec(vec![5, 4, 3, 2, 1], vec![1, 2, 3, 4, 5]);
+        assert_eq_vec(vec![1, 4, 3, 5, 2], vec![1, 2, 3, 4, 5]);
+        assert_eq_vec(vec![3, 4, 2, 1, 5], vec![1, 2, 3, 4, 5]);
+    }
 }
 
 // **Exercise 14.2**: Since `String` implements `PartialEq`, you can now change the function
