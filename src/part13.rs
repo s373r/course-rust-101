@@ -8,6 +8,9 @@ use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::sync::Arc;
 use std::{fs, io, thread};
 
+extern crate regex;
+
+use self::regex::Regex;
 use part14::sort;
 
 // Before we come to the actual code, we define a data-structure `Options` to store all the
@@ -22,6 +25,7 @@ pub enum OutputMode {
 use self::OutputMode::*;
 
 pub struct Options {
+    pub use_regexp_mode: bool,
     pub files: Vec<Arc<String>>,
     pub pattern: String,
     pub output_mode: OutputMode,
@@ -115,12 +119,20 @@ fn filter_lines<'a>(
     in_channel: Receiver<MatchedLine>,
     out_channel: SyncSender<MatchedLine>,
 ) {
+    let re = Regex::new(&options.pattern).unwrap();
+
     // We can simply iterate over the channel, which will stop when the channel is closed.
     for matched_line in in_channel.iter() {
-        // `contains` works on lots of types of patterns, but in particular, we can use it to test
-        // whether one string is contained in another. This is another example of Rust using traits
-        // as substitute for overloading.
-        if matched_line.line.contains(&options.pattern) {
+        let matched = if options.use_regexp_mode {
+            re.is_match(&matched_line.line)
+        } else {
+            // `contains` works on lots of types of patterns, but in particular, we can use it to test
+            // whether one string is contained in another. This is another example of Rust using traits
+            // as substitute for overloading.
+            matched_line.line.contains(&options.pattern)
+        };
+
+        if matched {
             out_channel.send(matched_line).unwrap();
         }
     }
@@ -208,6 +220,7 @@ pub fn main() {
         ],
         pattern: "let".to_string(),
         output_mode: Print,
+        use_regexp_mode: false,
     };
     run(options);
 }

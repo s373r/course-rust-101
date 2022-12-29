@@ -86,11 +86,12 @@ pub mod rgrep {
     // The `USAGE` string documents how the program is to be called. It's written in a format that
     // `docopt` can parse.
     static USAGE: &'static str = "
-Usage: rgrep [-c] [-s] <pattern> <file>...
+Usage: rgrep [-r] [-c] [-s] <pattern> <file>...
 
 Options:
-    -c, --count  Count number of matching lines (rather than printing them).
-    -s, --sort   Sort the lines before printing.
+    -r, --regexp  Switch the pattern to regular-expression mode.
+    -c, --count   Count number of matching lines (rather than printing them).
+    -s, --sort    Sort the lines before printing.
 ";
 
     // This function extracts the rgrep options from the command-line arguments.
@@ -101,10 +102,12 @@ Options:
             .and_then(|d| d.parse())
             .unwrap_or_else(|e| e.exit());
         // Now we can get all the values out.
+        let use_regexp_mode = args.get_bool("-r");
         let count = args.get_bool("-c");
         let sort = args.get_bool("-s");
         let pattern = args.get_str("<pattern>");
         let files = args.get_vec("<file>");
+
         if count && sort {
             println!("Setting both '-c' and '-s' at the same time does not make any sense.");
             process::exit(1);
@@ -118,10 +121,12 @@ Options:
         } else {
             OutputMode::Print
         };
+
         Options {
             files: files.iter().map(|file| file.to_string().into()).collect(),
             pattern: pattern.to_string(),
             output_mode: mode,
+            use_regexp_mode,
         }
     }
 
@@ -141,3 +146,4 @@ Options:
 // to honor this option. The documentation of regex is available from its crates.io site.
 // (You won't be able to use the `regex!` macro if you are on the stable or beta channel of Rust.
 // But it wouldn't help for our use-case anyway.)
+// NOTE(DP): Done

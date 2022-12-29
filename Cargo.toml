@@ -4,3 +4,4 @@ version = "0.0.0"
 
 [dependencies]
 docopt = "1.1.1"
+regex = "1.7.0"
