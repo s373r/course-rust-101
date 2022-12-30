@@ -1,39 +1,39 @@
 // Rust-101, Part 15: Mutex, Interior Mutability (cont.), RwLock, Sync
 // ===================================================================
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::time::Duration;
 
 // The derived `Clone` implementation will clone the `Arc`, so all clones will actually talk about
 // the same counter.
 #[derive(Clone)]
-struct ConcurrentCounter(Arc<Mutex<usize>>);
+struct ConcurrentCounter(Arc<RwLock<usize>>);
 
 impl ConcurrentCounter {
     // The constructor just wraps the constructors of `Arc` and `Mutex`.
     pub fn new(val: usize) -> Self {
-        ConcurrentCounter(Arc::new(Mutex::new(val)))
+        ConcurrentCounter(Arc::new(RwLock::new(val)))
     }
 
     // The core operation is, of course, `increment`.
     pub fn increment(&self, by: usize) {
         // `lock` on a mutex returns a guard, very much like `RefCell`. The guard gives access to
         // the data contained in the mutex.
-        let mut counter = self.0.lock().unwrap();
+        let mut counter = self.0.write().unwrap();
 
         *counter += by;
     }
 
     // The function `get` returns the current value of the counter.
     pub fn get(&self) -> usize {
-        let counter = self.0.lock().unwrap();
+        let counter = self.0.read().unwrap();
 
         *counter
     }
 
     fn compare_and_inc(&self, test: usize, by: usize) -> bool {
-        let mut counter = self.0.lock().unwrap();
+        let mut counter = self.0.write().unwrap();
         let result = *counter == test;
 
         if result {
@@ -106,3 +106,4 @@ mod tests {
 
 // **Exercise 15.3**:  Change the code above to use `RwLock`, such that multiple calls to `get` can
 // be executed at the same time.
+// NOTE(DP): Done
