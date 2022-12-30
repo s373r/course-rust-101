@@ -13,7 +13,7 @@ struct ConcurrentCounter(Arc<Mutex<usize>>);
 impl ConcurrentCounter {
     // The constructor just wraps the constructors of `Arc` and `Mutex`.
     pub fn new(val: usize) -> Self {
-        unimplemented!()
+        ConcurrentCounter(Arc::new(Mutex::new(val)))
     }
 
     // The core operation is, of course, `increment`.
@@ -21,12 +21,15 @@ impl ConcurrentCounter {
         // `lock` on a mutex returns a guard, very much like `RefCell`. The guard gives access to
         // the data contained in the mutex.
         let mut counter = self.0.lock().unwrap();
-        *counter = *counter + by;
+
+        *counter += by;
     }
 
     // The function `get` returns the current value of the counter.
     pub fn get(&self) -> usize {
-        unimplemented!()
+        let counter = self.0.lock().unwrap();
+
+        *counter
     }
 }
 
