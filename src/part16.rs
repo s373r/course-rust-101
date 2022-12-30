@@ -29,7 +29,7 @@ fn box_into_raw<T>(b: Box<T>) -> *mut T {
     unsafe { mem::transmute(b) }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Copy> LinkedList<T> {
     // A new linked list just contains null pointers. `PhantomData` is how we construct any
     // `PhantomData<T>`.
     pub fn new() -> Self {
@@ -38,6 +38,20 @@ impl<T> LinkedList<T> {
             last: ptr::null_mut(),
             _marker: PhantomData,
         }
+    }
+
+    pub fn from_vec(vec: Vec<T>) -> Self {
+        let mut list = LinkedList::new();
+
+        for item in vec {
+            list.push_back(item);
+        }
+
+        list
+    }
+
+    pub fn get_values(&mut self) -> Vec<T> {
+        self.iter_mut().map(|x| *x).collect()
     }
 
     // This function adds a new node to the end of the list.
@@ -53,11 +67,13 @@ impl<T> LinkedList<T> {
         if self.last.is_null() {
             debug_assert!(self.first.is_null());
             // The list is currently empty, so we have to update the head pointer.
-            unimplemented!()
+            self.first = new;
         } else {
             debug_assert!(!self.first.is_null());
             // We have to update the `next` pointer of the tail node.
-            unimplemented!()
+            unsafe {
+                (*self.last).next = new;
+            }
         }
         // Make this the last node.
         self.last = new;
@@ -73,6 +89,20 @@ impl<T> LinkedList<T> {
             next: self.first,
             _marker: PhantomData,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use part16::LinkedList;
+
+    #[test]
+    fn test_linked_list_push_back() {
+        let mut list = LinkedList::from_vec(vec![1, 2, 3]);
+
+        list.push_back(4);
+
+        assert_eq!(list.get_values(), vec![1, 2, 3, 4])
     }
 }
 
@@ -96,7 +126,10 @@ impl<'a, T> Iterator for IterMut<'a, T> {
             // and update the iterator.
             let next = unsafe { &mut *self.next };
             let ret = &mut next.data;
-            unimplemented!()
+
+            self.next = next.next;
+
+            Some(ret)
         }
     }
 }
