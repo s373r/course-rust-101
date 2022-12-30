@@ -31,6 +31,17 @@ impl ConcurrentCounter {
 
         *counter
     }
+
+    fn compare_and_inc(&self, test: usize, by: usize) -> bool {
+        let mut counter = self.0.lock().unwrap();
+        let result = *counter == test;
+
+        if result {
+            *counter += by;
+        }
+
+        result
+    }
 }
 
 // Now our counter is ready for action.
@@ -68,8 +79,25 @@ pub fn main() {
     println!("Final value: {}", counter.get());
 }
 
+#[cfg(test)]
+mod tests {
+    use part15::ConcurrentCounter;
+
+    #[test]
+    fn test_concurrent_counter_compare_and_inc() {
+        let counter = ConcurrentCounter::new(42);
+
+        assert_eq!(counter.compare_and_inc(23, 10), false);
+        assert_eq!(counter.get(), 42);
+
+        assert_eq!(counter.compare_and_inc(42, 10), true);
+        assert_eq!(counter.get(), 52);
+    }
+}
+
 // **Exercise 15.1**: Add an operation `compare_and_inc(&self, test: usize, by: usize)` that
 // increments the counter by `by` *only if* the current value is `test`.
+// NOTE(DP): Done
 //
 // **Exercise 15.2**: Rather than panicking in case the lock is poisoned, we can use `into_inner`
 // on the error to recover the data inside the lock. Change the code above to do that. Try using
