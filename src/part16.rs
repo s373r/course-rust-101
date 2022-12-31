@@ -145,11 +145,20 @@ mod tests {
 
     #[test]
     fn test_linked_list_push_back() {
-        let mut list = LinkedList::from_vec(vec![1, 2, 3]);
+        {
+            let mut list = LinkedList::from_vec(vec![1, 2, 3]);
 
-        list.push_back(4);
+            list.push_back(4);
 
-        assert_eq!(list.get_values(), vec![1, 2, 3, 4])
+            assert_eq!(list.get_values(), vec![1, 2, 3, 4])
+        }
+        {
+            let mut list = LinkedList::from_vec(vec![]);
+
+            list.push_back(5);
+
+            assert_eq!(list.get_values(), vec![5])
+        }
     }
 
     #[test]
