@@ -50,8 +50,8 @@ impl<T: Copy> LinkedList<T> {
         list
     }
 
-    pub fn get_values(&mut self) -> Vec<T> {
-        self.iter_mut().map(|x| *x).collect()
+    pub fn get_values(&self) -> Vec<T> {
+        self.iter().map(|x| *x).collect()
     }
 
     // This function adds a new node to the end of the list.
@@ -171,6 +171,13 @@ impl<T: Copy> LinkedList<T> {
             _marker: PhantomData,
         }
     }
+
+    pub fn iter(&self) -> Iter<T> {
+        Iter {
+            next: self.first,
+            _marker: PhantomData,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -232,6 +239,28 @@ mod tests {
         assert_eq!(list.pop_front(), Some(3));
         assert_eq!(list.pop_front(), None);
     }
+
+    #[test]
+    fn test_linked_list_iter() {
+        let list = LinkedList::from_vec(vec![1, 2, 3]);
+        let mut it = list.iter();
+
+        assert_eq!(it.next(), Some(&1));
+        assert_eq!(it.next(), Some(&2));
+        assert_eq!(it.next(), Some(&3));
+        assert_eq!(it.next(), None);
+    }
+
+    #[test]
+    fn test_linked_list_iter_mut() {
+        let mut list = LinkedList::from_vec(vec![1, 2, 3]);
+        let mut it = list.iter_mut();
+
+        assert_eq!(it.next(), Some(&mut 1));
+        assert_eq!(it.next(), Some(&mut 2));
+        assert_eq!(it.next(), Some(&mut 3));
+        assert_eq!(it.next(), None);
+    }
 }
 
 pub struct IterMut<'a, T>
@@ -262,8 +291,34 @@ impl<'a, T> Iterator for IterMut<'a, T> {
     }
 }
 
+pub struct Iter<'a, T>
+where
+    T: 'a,
+{
+    next: NodePtr<T>,
+    _marker: PhantomData<&'a LinkedList<T>>,
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.next.is_null() {
+            None
+        } else {
+            let next = unsafe { &mut *self.next };
+            let ret = &mut next.data;
+
+            self.next = next.next;
+
+            Some(ret)
+        }
+    }
+}
+
 // **Exercise 16.2**: Add a method `iter` and a type `Iter` providing iteration for shared
 // references. Add testcases for both kinds of iterators.
+// NOTE(DP): Done
 
 // ## `Drop`
 
