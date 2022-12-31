@@ -104,6 +104,28 @@ impl<T: Copy> LinkedList<T> {
         Some(value)
     }
 
+    pub fn push_front(&mut self, value: T) {
+        let new_node = if self.first.is_null() {
+            debug_assert!(self.last.is_null());
+
+            Box::new(Node {
+                data: value,
+                next: ptr::null_mut(),
+                prev: ptr::null_mut(),
+            })
+        } else {
+            debug_assert!(!self.last.is_null());
+
+            Box::new(Node {
+                data: value,
+                next: self.first,
+                prev: ptr::null_mut(),
+            })
+        };
+
+        self.first = box_into_raw(new_node)
+    }
+
     // **Exercise 16.1**: Add some more operations to `LinkedList`: `pop_back`, `push_front` and
     // `pop_front`. Add testcases for `push_back` and all of your functions. The `pop` functions
     // should take `&mut self` and return `Option<T>`.
@@ -138,6 +160,24 @@ mod tests {
         assert_eq!(list.pop_back(), Some(2));
         assert_eq!(list.pop_back(), Some(1));
         assert_eq!(list.pop_back(), None);
+    }
+
+    #[test]
+    fn test_linked_list_push_front() {
+        {
+            let mut list = LinkedList::from_vec(vec![1, 2, 3]);
+
+            list.push_front(0);
+
+            assert_eq!(list.get_values(), vec![0, 1, 2, 3]);
+        }
+        {
+            let mut list = LinkedList::from_vec(vec![]);
+
+            list.push_front(5);
+
+            assert_eq!(list.get_values(), vec![5]);
+        }
     }
 }
 
