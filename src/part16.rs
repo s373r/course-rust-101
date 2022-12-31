@@ -230,7 +230,7 @@ mod tests {
         assert_eq!(list.pop_front(), Some(1));
         assert_eq!(list.pop_front(), Some(2));
         assert_eq!(list.pop_front(), Some(3));
-        assert_eq!(list.pop_back(), None);
+        assert_eq!(list.pop_front(), None);
     }
 }
 
