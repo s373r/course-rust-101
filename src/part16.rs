@@ -81,8 +81,12 @@ impl<T: Copy> LinkedList<T> {
 
     pub fn pop_back(&mut self) -> Option<T> {
         if self.last.is_null() {
+            debug_assert!(self.first.is_null());
+
             return None;
         }
+
+        debug_assert!(!self.first.is_null());
 
         let last = unsafe { raw_into_box(self.last) };
 
@@ -124,6 +128,35 @@ impl<T: Copy> LinkedList<T> {
         };
 
         self.first = box_into_raw(new_node)
+    }
+
+    pub fn pop_front(&mut self) -> Option<T> {
+        if self.first.is_null() {
+            debug_assert!(self.last.is_null());
+
+            return None;
+        }
+
+        debug_assert!(!self.last.is_null());
+
+        let first = unsafe { raw_into_box(self.first) };
+
+        if !first.next.is_null() {
+            unsafe {
+                (*first.next).prev = ptr::null_mut();
+            }
+
+            self.first = first.next;
+        } else {
+            self.first = ptr::null_mut();
+            self.last = ptr::null_mut();
+        }
+
+        let value = first.data;
+
+        drop(first);
+
+        Some(value)
     }
 
     // **Exercise 16.1**: Add some more operations to `LinkedList`: `pop_back`, `push_front` and
@@ -187,6 +220,16 @@ mod tests {
 
             assert_eq!(list.get_values(), vec![5]);
         }
+    }
+
+    #[test]
+    fn test_linked_list_pop_front() {
+        let mut list = LinkedList::from_vec(vec![1, 2, 3]);
+
+        assert_eq!(list.pop_front(), Some(1));
+        assert_eq!(list.pop_front(), Some(2));
+        assert_eq!(list.pop_front(), Some(3));
+        assert_eq!(list.pop_back(), None);
     }
 }
 
