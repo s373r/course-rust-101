@@ -162,6 +162,7 @@ impl<T: Copy> LinkedList<T> {
     // **Exercise 16.1**: Add some more operations to `LinkedList`: `pop_back`, `push_front` and
     // `pop_front`. Add testcases for `push_back` and all of your functions. The `pop` functions
     // should take `&mut self` and return `Option<T>`.
+    // NOTE(DP): Done
 
     // Next, we are going to provide an iterator.
     pub fn iter_mut(&mut self) -> IterMut<T> {
