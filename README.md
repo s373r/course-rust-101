@@ -4,6 +4,8 @@ Course link: https://github.com/RalfJung/rust-101
 
 Status: ✅
 
+Course workspaces are here in this repo. The course itself is in [the course repo](https://github.com/RalfJung/rust-101) or [online variant](https://github.com/RalfJung/rust-101)
+
 ### Index legend
 
 - 📝 - a link to a book page
